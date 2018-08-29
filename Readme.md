@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Марина Гандерсен](https://up.htmlacademy.ru/javascript/15/user/243875).
-* Наставник: [Олег Петров].
+* Наставник: [Олег Петров](https://htmlacademy.ru/profile/fyvfyv).
 
 ---
 
