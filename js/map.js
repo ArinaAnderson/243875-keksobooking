@@ -46,13 +46,13 @@ function getImageAddress(constPart, varPart, format) {
 }
 
 // создание нового элемента изображения
-function addNewImage(src, alt, width, height, elemClass) {
+function addNewImage(src) {
   var image = document.createElement('img');
   image.src = src;
-  image.alt = alt;
-  image.width = width;
-  image.height = height;
-  image.classList.add(elemClass);
+  image.alt = 'Фотография жилья';
+  image.width = '45';
+  image.height = '40';
+  image.classList.add('popup__photo');
   return image;
 }
 
@@ -76,12 +76,12 @@ function shuffleArray(list) {
   return list;
 }
 
-function createOfferData(ava, num) {
+function createOfferData(num) {
   var x = getRandomNumber(locationParams.PIN_WIDTH / 2, locationParams.BLOCK_MAX_WIDTH + 1 - locationParams.PIN_WIDTH / 2);
   var y = getRandomNumber(locationParams.LOCATION_Y_BOTTOM, locationParams.LOCATION_Y_TOP + 1);
   return {
     author: {
-      avatar: getImageAddress('/avatars/user', ava, 'png')
+      avatar: getImageAddress('/avatars/user', num + 1, 'png')
     },
     offer: {
       title: OFFER_TITILES[num],
@@ -126,7 +126,7 @@ function renderCard(offerData) {
   }
   card.querySelector('.popup__description').textContent = offerData.offer.description;
   for (var j = 0; j < offerData.offer.photos.length; j++) {
-    var newImg = addNewImage(offerData.offer.photos[j], 'Фотография жилья', '45', '40', 'popup__photo');
+    var newImg = addNewImage(offerData.offer.photos[j]);
     card.querySelector('.popup__photos').appendChild(newImg);
   }
   card.querySelector('.popup__avatar').src = offerData.author.avatar;
@@ -136,7 +136,7 @@ function renderCard(offerData) {
 function createOffersList(number) {
   var offers = [];
   for (var i = 0; i < number; i++) {
-    offers.push(createOfferData(i + 1, i));
+    offers.push(createOfferData(i));
   }
   return offers;
 }
@@ -157,6 +157,8 @@ function renderCards(offersData) {
   map.insertBefore(fragment, mapFilters);
 }
 
+map.classList.remove('map--faded');
 var offers = createOffersList(OFFERS_NUMBER);
 renderPins(offers);
 renderCards(offers);
+
