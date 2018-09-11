@@ -40,9 +40,9 @@ function getRandomNumber(min, max) {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
 }
 
-function getImageAddress(constPart, varPart, format) {
+function getImageAddress(varPart) {
   var constPartNumber = varPart < 10 ? '0' : '';
-  return 'img' + constPart + constPartNumber + varPart + '.' + format;
+  return 'img/avatars/user' + constPartNumber + varPart + '.png';
 }
 
 // создание нового элемента изображения
@@ -59,10 +59,9 @@ function addNewImage(src) {
 // создание нового элемента нового пункта списка
 function addListItem(elemClass, modifier) {
   var li = document.createElement('li');
-  for (var i = 0; i < 2; i++) {
-    li.classList.add(elemClass);
-    elemClass += '--' + modifier;
-  }
+  li.classList.add(elemClass);
+  elemClass += '--' + modifier;
+  li.classList.add(elemClass);
   return li;
 }
 
@@ -81,7 +80,7 @@ function createOfferData(num) {
   var y = getRandomNumber(locationParams.LOCATION_Y_BOTTOM, locationParams.LOCATION_Y_TOP + 1);
   return {
     author: {
-      avatar: getImageAddress('/avatars/user', num + 1, 'png')
+      avatar: getImageAddress(num + 1)
     },
     offer: {
       title: OFFER_TITILES[num],
