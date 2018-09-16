@@ -44,10 +44,10 @@ var selectItems = document.querySelectorAll('select');
 var mainPin = document.querySelector('.map__pin--main');
 var offerForm = document.querySelector('.ad-form');
 var addressInput = offerForm.querySelector('input[name="address"]');
-var mainPinClickCount;
+var isPageActivated;
 var offers;
-var pinToDeactivate;
-var cardToAdd;
+var activePin;
+var activeCard;
 
 // получение случайного числа в пределах указанного диапазона
 function getRandomNumber(min, max) {
@@ -123,11 +123,11 @@ function renderPin(offerData) {
   pin.querySelector('img').src = offerData.author.avatar;
   pin.querySelector('img').alt = offerData.offer.title;
   pin.addEventListener('click', function (evt) {
-    deactivatePin();
-    removeCard();
-    pinToDeactivate = evt.currentTarget;
-    addCard(offerData);
+    // deactivatePin();
     activatePin(pin);
+    removeCard();
+    activePin = evt.currentTarget;
+    addCard(offerData);
   });
   return pin;
 }
@@ -178,22 +178,23 @@ function renderPins(offersData) {
 }*/
 
 function activatePin(pin) {
+  deactivatePin();
   pin.classList.add('map__pin--active');
 }
 
 function deactivatePin() {
-  if (pinToDeactivate) {
-    pinToDeactivate.classList.remove('map__pin--active');
-    pinToDeactivate.focus();
+  if (activePin) {
+    activePin.classList.remove('map__pin--active');
+    activePin.focus();
   }
 }
 
 function addCard(offerData) {
   var fragment = document.createDocumentFragment();
-  cardToAdd = fragment.appendChild(renderCard(offerData));
+  activeCard = fragment.appendChild(renderCard(offerData));
   map.insertBefore(fragment, mapFilters);
 
-  var btn = cardToAdd.querySelector('.popup__close');
+  var btn = activeCard.querySelector('.popup__close');
   btn.focus();
   btn.addEventListener('click', clickCardBtnHandler);
 
@@ -208,10 +209,10 @@ function cardEscPressHandler(evt) {
 }
 
 function removeCard() {
-  if (cardToAdd) {
-    cardToAdd.parentElement.removeChild(cardToAdd);
+  if (activeCard) {
+    activeCard.parentElement.removeChild(activeCard);
   }
-  cardToAdd = null;
+  activeCard = null;
 }
 
 function clickCardBtnHandler() {
@@ -256,8 +257,8 @@ function deletePins() {
   }
 }
 
-function restartPage() {
-  mainPinClickCount = 0;
+function deactivatePage() {
+  isPageActivated = true;
   offers = createOffersList(OFFERS_NUMBER);
   deactivateForms();
   setupMainPin(locationParams.MAIN_PIN_X, locationParams.MAIN_PIN_Y);
@@ -267,14 +268,14 @@ function restartPage() {
   removeCard();
 }
 
-restartPage();
+deactivatePage();
 
 mainPin.addEventListener('mouseup', function (evt) {
-  if (mainPinClickCount === 0) {
+  if (isPageActivated === true) {
     activateForms();
     renderPins(offers);
     fillAddressInput(evt.pageX, evt.pageY, locationParams.MAIN_PIN_WIDTH / 2,
         locationParams.MAIN_PIN_HEIGHT);
   }
-  mainPinClickCount++;
+  isPageActivated = false;
 });
