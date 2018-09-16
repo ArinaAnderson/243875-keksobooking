@@ -169,14 +169,6 @@ function renderPins(offersData) {
   mapPins.appendChild(fragment);
 }
 
-/* function renderCards(offersData) {
-  var fragment = document.createDocumentFragment();
-  for (var i = 0; i < offersData.length; i++) {
-    fragment.appendChild(renderCard(offersData[i])); // offerData
-  }
-  map.insertBefore(fragment, mapFilters);
-}*/
-
 function activatePin(pin) {
   deactivatePin();
   pin.classList.add('map__pin--active');
@@ -271,7 +263,7 @@ function deactivatePage() {
 deactivatePage();
 
 mainPin.addEventListener('mouseup', function (evt) {
-  if (isPageActivated === true) {
+  if (isPageActivated) {
     activateForms();
     renderPins(offers);
     fillAddressInput(evt.pageX, evt.pageY, locationParams.MAIN_PIN_WIDTH / 2,
