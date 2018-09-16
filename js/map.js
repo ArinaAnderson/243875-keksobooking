@@ -19,9 +19,14 @@ var locationParams = {
   BLOCK_MAX_WIDTH: 1200,
   PIN_WIDTH: 40,
   PIN_HEIGHT: 40,
+  MAIN_PIN_HEIGHT: 44,
+  MAIN_PIN_WIDTH: 40,
   LOCATION_Y_TOP: 130,
-  LOCATION_Y_BOTTOM: 630
+  LOCATION_Y_BOTTOM: 630,
+  MAIN_PIN_X: 570,
+  MAIN_PIN_Y: 375
 };
+var ESC_KEYCODE = 27;
 var offerTypesTranslation = {
   'flat': 'Квартира',
   'palace': 'Дворец',
@@ -34,6 +39,15 @@ var cardTemplate = document.querySelector('#card').content.querySelector('.map__
 var map = document.querySelector('.map');
 var mapPins = document.querySelector('.map__pins');
 var mapFilters = document.querySelector('.map__filters-container');
+var fieldsets = document.querySelectorAll('fieldset');
+var selectItems = document.querySelectorAll('select');
+var mainPin = document.querySelector('.map__pin--main');
+var offerForm = document.querySelector('.ad-form');
+var addressInput = offerForm.querySelector('input[name="address"]');
+var isPageActivated;
+var offers;
+var activePin;
+var activeCard;
 
 // получение случайного числа в пределах указанного диапазона
 function getRandomNumber(min, max) {
@@ -108,6 +122,13 @@ function renderPin(offerData) {
   'px; top: ' + (offerData.location.y - locationParams.PIN_HEIGHT) + 'px';
   pin.querySelector('img').src = offerData.author.avatar;
   pin.querySelector('img').alt = offerData.offer.title;
+  pin.addEventListener('click', function (evt) {
+    // deactivatePin();
+    activatePin(pin);
+    removeCard();
+    activePin = evt.currentTarget;
+    addCard(offerData);
+  });
   return pin;
 }
 
@@ -133,11 +154,11 @@ function renderCard(offerData) {
 }
 
 function createOffersList(number) {
-  var offers = [];
+  var offersArray = [];
   for (var i = 0; i < number; i++) {
-    offers.push(createOfferData(i));
+    offersArray.push(createOfferData(i));
   }
-  return offers;
+  return offersArray;
 }
 
 function renderPins(offersData) {
@@ -148,16 +169,105 @@ function renderPins(offersData) {
   mapPins.appendChild(fragment);
 }
 
-function renderCards(offersData) {
-  var fragment = document.createDocumentFragment();
-  for (var i = 0; i < offersData.length; i++) {
-    fragment.appendChild(renderCard(offersData[i]));
-  }
-  map.insertBefore(fragment, mapFilters);
+function activatePin(pin) {
+  deactivatePin();
+  pin.classList.add('map__pin--active');
 }
 
-map.classList.remove('map--faded');
-var offers = createOffersList(OFFERS_NUMBER);
-renderPins(offers);
-renderCards(offers);
+function deactivatePin() {
+  if (activePin) {
+    activePin.classList.remove('map__pin--active');
+    activePin.focus();
+  }
+}
 
+function addCard(offerData) {
+  var fragment = document.createDocumentFragment();
+  activeCard = fragment.appendChild(renderCard(offerData));
+  map.insertBefore(fragment, mapFilters);
+
+  var btn = activeCard.querySelector('.popup__close');
+  btn.focus();
+  btn.addEventListener('click', clickCardBtnHandler);
+
+  document.addEventListener('keydown', cardEscPressHandler);
+}
+
+function cardEscPressHandler(evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    removeCard();
+    deactivatePin();
+  }
+}
+
+function removeCard() {
+  if (activeCard) {
+    activeCard.parentElement.removeChild(activeCard);
+  }
+  activeCard = null;
+}
+
+function clickCardBtnHandler() {
+  removeCard();
+  deactivatePin();
+}
+
+function manageFormElems(elementList, disable) {
+  for (var i = 0; i < elementList.length; i++) {
+    elementList[i].disabled = disable;
+  }
+}
+
+function activateForms() {
+  manageFormElems(fieldsets, false);
+  manageFormElems(selectItems, false);
+  map.classList.remove('map--faded');
+  offerForm.classList.remove('ad-form--disabled');
+}
+
+function deactivateForms() {
+  manageFormElems(fieldsets, true);
+  manageFormElems(selectItems, true);
+  map.classList.add('map--faded');
+  offerForm.classList.add('ad-form--disabled');
+}
+
+function fillAddressInput(x, y, correctionX, correctionY) {
+  addressInput.value = (x + correctionX) + ', ' + (y + correctionY);
+}
+
+function setupMainPin(x, y) {
+  mainPin.style.left = x;
+  mainPin.style.top = y;
+}
+
+function deletePins() {
+  var nextBtn = mainPin.nextElementSibling;
+  while (nextBtn) {
+    nextBtn.parentElement.removeChild(nextBtn);
+    nextBtn = mainPin.nextElementSibling;
+  }
+}
+
+function deactivatePage() {
+  isPageActivated = true;
+  offers = createOffersList(OFFERS_NUMBER);
+  deactivateForms();
+  setupMainPin(locationParams.MAIN_PIN_X, locationParams.MAIN_PIN_Y);
+  fillAddressInput(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10),
+      locationParams.MAIN_PIN_WIDTH / 2, locationParams.MAIN_PIN_HEIGHT / 2);
+  deletePins();
+  removeCard();
+}
+
+deactivatePage();
+
+mainPin.addEventListener('mouseup', function (evt) {
+  if (isPageActivated) {
+    activateForms();
+    renderPins(offers);
+    fillAddressInput(evt.pageX, evt.pageY, locationParams.MAIN_PIN_WIDTH / 2,
+        locationParams.MAIN_PIN_HEIGHT);
+  }
+  isPageActivated = false;
+});
