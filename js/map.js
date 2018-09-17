@@ -49,6 +49,85 @@ var offers;
 var activePin;
 var activeCard;
 
+var priceInput = document.querySelector('input[name="price"]');
+var typeSelect = document.querySelector('select[name="type"]');
+var offerTypePrices = {
+  'bungalo': 0,
+  'flat': 1000,
+  'house': 5000,
+  'palace': 10000
+};
+var checkinSelect = document.querySelector('select[name="timein"]');
+var checkoutSelect = document.querySelector('select[name="timeout"]');
+var checkoutTime = {
+  '12:00': '12:00',
+  '13:00': '13:00',
+  '14:00': '14:00'
+};
+var roomsSelect = document.querySelector('select[name="rooms"]');
+var guestsSelect = document.querySelector('select[name="capacity"]');
+var guestsText = {
+  '1': 'для 1 гостя',
+  '2': 'для 2 гостей',
+  '3': 'для 3 гостей',
+  '100': 'не для гостей'
+};
+
+// обработка элементов формы
+function setPriceMin() {
+  var typeValue = typeSelect.value;
+  priceInput.min = offerTypePrices[typeValue];
+  priceInput.placeholder = offerTypePrices[typeValue];
+}
+
+function validateCheckout() {
+  if (checkoutSelect.value !== checkoutTime[checkinSelect.value]) {
+    checkoutSelect.setCustomValidity('Время выезда должно быть ' + checkoutTime[checkinSelect.value]);
+  } else {
+    checkoutSelect.setCustomValidity('');
+  }
+}
+
+function validateGuestNum() {
+  var guestValues = [];
+  var errorTexts = [];
+  if (parseInt(roomsSelect.value, 10) === 100) {
+    guestValues.push('0');
+    errorTexts.push(guestsText[roomsSelect.value]);
+  } else {
+    if (parseInt(roomsSelect.value, 10) >= 1) {
+      guestValues.push('1');
+      errorTexts.push(guestsText['1']);
+    }
+    if (parseInt(roomsSelect.value, 10) >= 2) {
+      guestValues.push('2');
+      errorTexts.push(guestsText['2']);
+    }
+    if (parseInt(roomsSelect.value, 10) === 3) {
+      guestValues.push('3');
+      errorTexts.push(guestsText['3']);
+    }
+  }
+  if (guestValues.indexOf(guestsSelect.value) < 0) {
+    var errorText = errorTexts.join(', ');
+    guestsSelect.setCustomValidity('Количество комнат ' + errorText);
+  } else {
+    guestsSelect.setCustomValidity('');
+  }
+}
+
+function timeoutSelectHandler() {
+  validateCheckout();
+}
+
+function typeSelectHandler() {
+  setPriceMin();
+}
+
+function guestNumSelectHandler() {
+  validateGuestNum();
+}
+
 // получение случайного числа в пределах указанного диапазона
 function getRandomNumber(min, max) {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
@@ -225,6 +304,14 @@ function activateForms() {
   offerForm.classList.remove('ad-form--disabled');
 }
 
+function validateForms() {
+  typeSelect.addEventListener('change', typeSelectHandler);
+  checkinSelect.addEventListener('change', timeoutSelectHandler);
+  checkoutSelect.addEventListener('change', timeoutSelectHandler);
+  roomsSelect.addEventListener('change', guestNumSelectHandler);
+  guestsSelect.addEventListener('change', guestNumSelectHandler);
+}
+
 function deactivateForms() {
   manageFormElems(fieldsets, true);
   manageFormElems(selectItems, true);
@@ -265,6 +352,7 @@ deactivatePage();
 mainPin.addEventListener('mouseup', function (evt) {
   if (isPageActivated) {
     activateForms();
+    validateForms();
     renderPins(offers);
     fillAddressInput(evt.pageX, evt.pageY, locationParams.MAIN_PIN_WIDTH / 2,
         locationParams.MAIN_PIN_HEIGHT);
