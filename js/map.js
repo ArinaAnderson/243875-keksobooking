@@ -59,71 +59,65 @@ var offerTypePrices = {
 };
 var checkinSelect = document.querySelector('select[name="timein"]');
 var checkoutSelect = document.querySelector('select[name="timeout"]');
-var checkoutTime = {
-  '12:00': '12:00',
-  '13:00': '13:00',
-  '14:00': '14:00'
-};
 var roomsSelect = document.querySelector('select[name="rooms"]');
 var guestsSelect = document.querySelector('select[name="capacity"]');
-var guestsText = {
-  '1': 'для 1 гостя',
-  '2': 'для 2 гостей',
-  '3': 'для 3 гостей',
-  '100': 'не для гостей'
-};
+var guestsSelectOptions = guestsSelect.querySelectorAll('option');
+var guestsOptionsContent = {};
 
-// обработка элементов формы
+// автоматизированное создание объекта соответствия значения optin (value) и текст option (textContent)
+function fillGuestsOptionsContent() {
+  for (var i = 0; i < guestsSelectOptions.length; i++) {
+    guestsOptionsContent[guestsSelectOptions[i].value] = guestsSelectOptions[i].textContent;
+  }
+}
+
+// проверка выбора количества гостей в соответствии с количеством комнат
+function validateGuestNum() {
+  var guestOptions = [];
+  var errorTexts = [];
+  if (roomsSelect.value !== '100') {
+    for (var i = 1; i <= parseInt(roomsSelect.value, 10); i++) {
+      guestOptions.push('' + i);
+      errorTexts.push(guestsOptionsContent['' + i]);
+    }
+  } else {
+    guestOptions = ['0'];
+    errorTexts.push('не для гостей');
+  }
+  if (guestOptions.indexOf(guestsSelect.value) < 0) {
+    guestsSelect.setCustomValidity('Такое количество комнат предусмотрено ' + errorTexts.join(', или '));
+  } else {
+    guestsSelect.setCustomValidity('');
+  }
+}
+
+// установка минимальной цены в зависимости от выбранного типа жилья
 function setPriceMin() {
   var typeValue = typeSelect.value;
   priceInput.min = offerTypePrices[typeValue];
   priceInput.placeholder = offerTypePrices[typeValue];
 }
 
+// установка соответствия времени заезда и выезда
 function validateCheckout() {
-  if (checkoutSelect.value !== checkoutTime[checkinSelect.value]) {
-    checkoutSelect.setCustomValidity('Время выезда должно быть ' + checkoutTime[checkinSelect.value]);
+  if (checkoutSelect.value !== checkinSelect.value) {
+    checkoutSelect.setCustomValidity('Время выезда должно быть ' + checkinSelect.value);
   } else {
     checkoutSelect.setCustomValidity('');
   }
 }
 
-function validateGuestNum() {
-  var guestValues = [];
-  var errorTexts = [];
-  if (parseInt(roomsSelect.value, 10) === 100) {
-    guestValues.push('0');
-    errorTexts.push(guestsText[roomsSelect.value]);
-  } else {
-    if (parseInt(roomsSelect.value, 10) >= 1) {
-      guestValues.push('1');
-      errorTexts.push(guestsText['1']);
-    }
-    if (parseInt(roomsSelect.value, 10) >= 2) {
-      guestValues.push('2');
-      errorTexts.push(guestsText['2']);
-    }
-    if (parseInt(roomsSelect.value, 10) === 3) {
-      guestValues.push('3');
-      errorTexts.push(guestsText['3']);
-    }
-  }
-  if (guestValues.indexOf(guestsSelect.value) < 0) {
-    var errorText = errorTexts.join(', ');
-    guestsSelect.setCustomValidity('Количество комнат ' + errorText);
-  } else {
-    guestsSelect.setCustomValidity('');
-  }
-}
-
-function timeoutSelectHandler() {
+// обработчик изменения полей времения выезда и заезда
+function timeSelectHandler() {
   validateCheckout();
 }
 
+// обработчик изменения поля типа жилья
 function typeSelectHandler() {
   setPriceMin();
 }
 
+// обработчик изменения полей числа комнат и количества гостей
 function guestNumSelectHandler() {
   validateGuestNum();
 }
@@ -306,8 +300,8 @@ function activateForms() {
 
 function validateForms() {
   typeSelect.addEventListener('change', typeSelectHandler);
-  checkinSelect.addEventListener('change', timeoutSelectHandler);
-  checkoutSelect.addEventListener('change', timeoutSelectHandler);
+  checkinSelect.addEventListener('change', timeSelectHandler);
+  checkoutSelect.addEventListener('change', timeSelectHandler);
   roomsSelect.addEventListener('change', guestNumSelectHandler);
   guestsSelect.addEventListener('change', guestNumSelectHandler);
 }
@@ -347,6 +341,7 @@ function deactivatePage() {
   removeCard();
 }
 
+fillGuestsOptionsContent();
 deactivatePage();
 
 mainPin.addEventListener('mouseup', function (evt) {
