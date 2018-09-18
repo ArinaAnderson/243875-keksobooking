@@ -61,31 +61,29 @@ var checkinSelect = document.querySelector('select[name="timein"]');
 var checkoutSelect = document.querySelector('select[name="timeout"]');
 var roomsSelect = document.querySelector('select[name="rooms"]');
 var guestsSelect = document.querySelector('select[name="capacity"]');
-var guestsSelectOptions = guestsSelect.querySelectorAll('option');
-var guestsOptionsContent = {};
+var roomsSelectOptions = roomsSelect.querySelectorAll('option');
+var guestAvailable = {};
 
 // автоматизированное создание объекта соответствия значения optin (value) и текст option (textContent)
-function fillGuestsOptionsContent() {
-  for (var i = 0; i < guestsSelectOptions.length; i++) {
-    guestsOptionsContent[guestsSelectOptions[i].value] = guestsSelectOptions[i].textContent;
+function fillGuestsAvailable() {
+  for (var i = 0; i < roomsSelectOptions.length; i++) {
+    guestAvailable[roomsSelectOptions[i].value] = {values: [], text: []};
+    if (roomsSelectOptions[i].value !== '100') {
+      for (var j = 1; j <= parseInt(roomsSelect[i].value, 10); j++) {
+        guestAvailable[roomsSelectOptions[i].value].values.push('' + j);
+        guestAvailable[roomsSelectOptions[i].value].text.push(guestsSelect.querySelector('option[value="' + j + '"]').textContent);
+      }
+    } else {
+      guestAvailable[roomsSelectOptions[i].value].values.push('0');
+      guestAvailable[roomsSelectOptions[i].value].text.push(guestsSelect.querySelector('option[value="0"]').textContent);
+    }
   }
 }
 
 // проверка выбора количества гостей в соответствии с количеством комнат
 function validateGuestNum() {
-  var guestOptions = [];
-  var errorTexts = [];
-  if (roomsSelect.value !== '100') {
-    for (var i = 1; i <= parseInt(roomsSelect.value, 10); i++) {
-      guestOptions.push('' + i);
-      errorTexts.push(guestsOptionsContent['' + i]);
-    }
-  } else {
-    guestOptions = ['0'];
-    errorTexts.push('не для гостей');
-  }
-  if (guestOptions.indexOf(guestsSelect.value) < 0) {
-    guestsSelect.setCustomValidity('Такое количество комнат предусмотрено ' + errorTexts.join(', или '));
+  if (guestAvailable[roomsSelect.value].values.indexOf(guestsSelect.value) < 0) {
+    guestsSelect.setCustomValidity('Такое количество комнат предусмотрено ' + guestAvailable[roomsSelect.value].text.join(', или '));
   } else {
     guestsSelect.setCustomValidity('');
   }
@@ -341,7 +339,7 @@ function deactivatePage() {
   removeCard();
 }
 
-fillGuestsOptionsContent();
+fillGuestsAvailable();
 deactivatePage();
 
 mainPin.addEventListener('mouseup', function (evt) {
