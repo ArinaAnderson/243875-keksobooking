@@ -24,7 +24,9 @@ var locationParams = {
   LOCATION_Y_TOP: 130,
   LOCATION_Y_BOTTOM: 630,
   MAIN_PIN_X: 570,
-  MAIN_PIN_Y: 375
+  MAIN_PIN_Y: 375,
+  MAIN_PIN_X_LEFT_CONSTRAINT: 180,
+  MAIN_PIN_X_RIGHT_CONSTRAINT: 1240
 };
 var ESC_KEYCODE = 27;
 var offerTypesTranslation = {
@@ -337,15 +339,58 @@ function deactivatePage() {
   removeCard();
 }
 
-deactivatePage();
+// функция проверяет, не выходит ли за границы доступной области main-pin
+function validateCoord(coord, minValue, maxValue) {
+  coord = coord < minValue ? minValue : coord;
+  coord = coord > maxValue ? maxValue : coord;
+  return coord;
+}
 
-mainPin.addEventListener('mouseup', function (evt) {
-  if (isPageActivated) {
-    activateForms();
-    validateForms();
-    renderPins(offers);
-    fillAddressInput(evt.pageX, evt.pageY, locationParams.MAIN_PIN_WIDTH / 2,
-        locationParams.MAIN_PIN_HEIGHT);
+// обработчик клика на main-pin
+function mainPinMouseDownHandler(evt) {
+  evt.preventDefault();
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+  fillAddressInput(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10),
+      locationParams.MAIN_PIN_WIDTH / 2, locationParams.MAIN_PIN_HEIGHT);
+
+  function mainPinMouseMoveHandler(moveEvt) {
+    moveEvt.preventDefault();
+    var validatedX = validateCoord(moveEvt.clientX, locationParams.MAIN_PIN_X_LEFT_CONSTRAINT,
+        locationParams.MAIN_PIN_X_RIGHT_CONSTRAINT);
+    var validatedY = validateCoord(moveEvt.clientY, locationParams.LOCATION_Y_TOP + locationParams.MAIN_PIN_HEIGHT,
+        locationParams.LOCATION_Y_BOTTOM) - locationParams.MAIN_PIN_HEIGHT;
+
+    var shift = {
+      x: startCoords.x - validatedX,
+      y: startCoords.y - validatedY
+    };
+    startCoords = {
+      x: validatedX,
+      y: validatedY
+    };
+    mainPin.style.top = (mainPin.offsetTop - shift.y) + 'px';
+    mainPin.style.left = (mainPin.offsetLeft - shift.x) + 'px';
+    fillAddressInput(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10),
+        locationParams.MAIN_PIN_WIDTH / 2, locationParams.MAIN_PIN_HEIGHT);
   }
-  isPageActivated = false;
-});
+
+  function mainPinMouseUpHandler(upEvt) {
+    upEvt.preventDefault();
+    if (isPageActivated) {
+      activateForms();
+      validateForms();
+      renderPins(offers);
+    }
+    document.removeEventListener('mousemove', mainPinMouseMoveHandler);
+    isPageActivated = false;
+  }
+  document.addEventListener('mousemove', mainPinMouseMoveHandler);
+  document.addEventListener('mouseup', mainPinMouseUpHandler);
+}
+
+deactivatePage();
+mainPin.addEventListener('mousedown', mainPinMouseDownHandler);
+
