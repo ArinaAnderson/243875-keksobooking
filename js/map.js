@@ -27,7 +27,6 @@ var locationParams = {
   MAIN_PIN_Y: 375, // изначальное состояние main-pin до активации страницы (style="top 375px")
 };
 var ESC_KEYCODE = 27;
-var main = document.querySelector('main');
 var offerTypesTranslation = {
   'flat': 'Квартира',
   'palace': 'Дворец',
@@ -355,23 +354,21 @@ function mainPinMouseDownHandler(evt) {
 
   function mainPinMouseMoveHandler(moveEvt) {
     moveEvt.preventDefault();
-    var validatedX = validateCoord(moveEvt.clientX, main.offsetLeft + mapPins.offsetLeft + mainPin.offsetWidth / 2,
-        main.offsetLeft + mapPins.offsetLeft + mapPins.offsetWidth - mainPin.offsetWidth / 2);
-    var validatedY = validateCoord(moveEvt.clientY, mapPins.offsetTop + mainPin.offsetHeight / 2 + locationParams.LOCATION_Y_TOP,
-        mapPins.offsetTop + locationParams.LOCATION_Y_BOTTOM - mainPin.offsetHeight - window.scrollY);
-
     var shift = {
-      x: startCoords.x - validatedX,
-      y: startCoords.y - validatedY
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
     };
     startCoords = {
-      x: validatedX,
-      y: validatedY
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
     };
-    mainPin.style.top = (mainPin.offsetTop - shift.y) + 'px';
-    mainPin.style.left = (mainPin.offsetLeft - shift.x) + 'px';
-    fillAddressInput(parseInt(mainPin.style.left, 10) + locationParams.MAIN_PIN_WIDTH / 2,
-        parseInt(mainPin.style.top, 10) + locationParams.MAIN_PIN_HEIGHT);
+    var validatedX = validateCoord(mainPin.offsetLeft - shift.x, 0 - mainPin.offsetWidth / 2, locationParams.BLOCK_MAX_WIDTH - mainPin.offsetWidth / 2);
+    mainPin.style.left = validatedX + 'px';
+    var validatedY = validateCoord(mainPin.offsetTop - shift.y, locationParams.LOCATION_Y_TOP, locationParams.LOCATION_Y_BOTTOM);
+    mainPin.style.top = validatedY + 'px';
+
+    fillAddressInput(parseInt(mainPin.style.left, 10) + mainPin.offsetWidth / 2,
+        parseInt(mainPin.style.top, 10) + mainPin.offsetHeight);
   }
 
   function mainPinMouseUpHandler(upEvt) {
