@@ -19,16 +19,15 @@ var locationParams = {
   BLOCK_MAX_WIDTH: 1200,
   PIN_WIDTH: 40,
   PIN_HEIGHT: 40,
-  MAIN_PIN_HEIGHT: 44,
   MAIN_PIN_WIDTH: 40,
-  LOCATION_Y_TOP: 130,
-  LOCATION_Y_BOTTOM: 630,
-  MAIN_PIN_X: 570,
-  MAIN_PIN_Y: 375,
-  MAIN_PIN_X_LEFT_CONSTRAINT: 180,
-  MAIN_PIN_X_RIGHT_CONSTRAINT: 1240
+  MAIN_PIN_HEIGHT: 44,
+  LOCATION_Y_TOP: 130, // верхняя граница доступной области главного маркера
+  LOCATION_Y_BOTTOM: 630, // нижняя граница доступной области главного маркера
+  MAIN_PIN_X: 570, // изначальное состояние main-pin до активации страницы (style="left 570px")
+  MAIN_PIN_Y: 375, // изначальное состояние main-pin до активации страницы (style="top 375px")
 };
 var ESC_KEYCODE = 27;
+var main = document.querySelector('main');
 var offerTypesTranslation = {
   'flat': 'Квартира',
   'palace': 'Дворец',
@@ -311,8 +310,8 @@ function deactivateForms() {
   offerForm.classList.add('ad-form--disabled');
 }
 
-function fillAddressInput(x, y, correctionX, correctionY) {
-  addressInput.value = (x + correctionX) + ', ' + (y + correctionY);
+function fillAddressInput(x, y) {
+  addressInput.value = x + ', ' + y;
 }
 
 function setupMainPin(x, y) {
@@ -333,8 +332,8 @@ function deactivatePage() {
   offers = createOffersList(OFFERS_NUMBER);
   deactivateForms();
   setupMainPin(locationParams.MAIN_PIN_X, locationParams.MAIN_PIN_Y);
-  fillAddressInput(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10),
-      locationParams.MAIN_PIN_WIDTH / 2, locationParams.MAIN_PIN_HEIGHT / 2);
+  fillAddressInput(parseInt(mainPin.style.left, 10) + locationParams.MAIN_PIN_WIDTH / 2,
+      parseInt(mainPin.style.top, 10) + locationParams.MAIN_PIN_HEIGHT / 2);
   deletePins();
   removeCard();
 }
@@ -353,15 +352,13 @@ function mainPinMouseDownHandler(evt) {
     x: evt.clientX,
     y: evt.clientY
   };
-  fillAddressInput(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10),
-      locationParams.MAIN_PIN_WIDTH / 2, locationParams.MAIN_PIN_HEIGHT);
 
   function mainPinMouseMoveHandler(moveEvt) {
     moveEvt.preventDefault();
-    var validatedX = validateCoord(moveEvt.clientX, locationParams.MAIN_PIN_X_LEFT_CONSTRAINT,
-        locationParams.MAIN_PIN_X_RIGHT_CONSTRAINT);
-    var validatedY = validateCoord(moveEvt.clientY, locationParams.LOCATION_Y_TOP + locationParams.MAIN_PIN_HEIGHT,
-        locationParams.LOCATION_Y_BOTTOM) - locationParams.MAIN_PIN_HEIGHT;
+    var validatedX = validateCoord(moveEvt.clientX, main.offsetLeft + mapPins.offsetLeft + mainPin.offsetWidth / 2,
+        main.offsetLeft + mapPins.offsetLeft + mapPins.offsetWidth - mainPin.offsetWidth / 2);
+    var validatedY = validateCoord(moveEvt.clientY, mapPins.offsetTop + mainPin.offsetHeight / 2 + locationParams.LOCATION_Y_TOP,
+        mapPins.offsetTop + locationParams.LOCATION_Y_BOTTOM - mainPin.offsetHeight - window.scrollY);
 
     var shift = {
       x: startCoords.x - validatedX,
@@ -373,8 +370,8 @@ function mainPinMouseDownHandler(evt) {
     };
     mainPin.style.top = (mainPin.offsetTop - shift.y) + 'px';
     mainPin.style.left = (mainPin.offsetLeft - shift.x) + 'px';
-    fillAddressInput(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10),
-        locationParams.MAIN_PIN_WIDTH / 2, locationParams.MAIN_PIN_HEIGHT);
+    fillAddressInput(parseInt(mainPin.style.left, 10) + locationParams.MAIN_PIN_WIDTH / 2,
+        parseInt(mainPin.style.top, 10) + locationParams.MAIN_PIN_HEIGHT);
   }
 
   function mainPinMouseUpHandler(upEvt) {
