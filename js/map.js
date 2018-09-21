@@ -19,12 +19,12 @@ var locationParams = {
   BLOCK_MAX_WIDTH: 1200,
   PIN_WIDTH: 40,
   PIN_HEIGHT: 40,
-  MAIN_PIN_HEIGHT: 44,
   MAIN_PIN_WIDTH: 40,
-  LOCATION_Y_TOP: 130,
-  LOCATION_Y_BOTTOM: 630,
-  MAIN_PIN_X: 570,
-  MAIN_PIN_Y: 375
+  MAIN_PIN_HEIGHT: 44,
+  LOCATION_Y_TOP: 130, // верхняя граница доступной области главного маркера
+  LOCATION_Y_BOTTOM: 630, // нижняя граница доступной области главного маркера
+  MAIN_PIN_X: 570, // изначальное состояние main-pin до активации страницы (style="left 570px")
+  MAIN_PIN_Y: 375, // изначальное состояние main-pin до активации страницы (style="top 375px")
 };
 var ESC_KEYCODE = 27;
 var offerTypesTranslation = {
@@ -309,8 +309,8 @@ function deactivateForms() {
   offerForm.classList.add('ad-form--disabled');
 }
 
-function fillAddressInput(x, y, correctionX, correctionY) {
-  addressInput.value = (x + correctionX) + ', ' + (y + correctionY);
+function fillAddressInput(x, y) {
+  addressInput.value = x + ', ' + y;
 }
 
 function setupMainPin(x, y) {
@@ -331,21 +331,61 @@ function deactivatePage() {
   offers = createOffersList(OFFERS_NUMBER);
   deactivateForms();
   setupMainPin(locationParams.MAIN_PIN_X, locationParams.MAIN_PIN_Y);
-  fillAddressInput(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10),
-      locationParams.MAIN_PIN_WIDTH / 2, locationParams.MAIN_PIN_HEIGHT / 2);
+  fillAddressInput(parseInt(mainPin.style.left, 10) + locationParams.MAIN_PIN_WIDTH / 2,
+      parseInt(mainPin.style.top, 10) + locationParams.MAIN_PIN_HEIGHT / 2);
   deletePins();
   removeCard();
 }
 
-deactivatePage();
+// функция проверяет, не выходит ли за границы доступной области main-pin
+function validateCoord(coord, minValue, maxValue) {
+  coord = coord < minValue ? minValue : coord;
+  coord = coord > maxValue ? maxValue : coord;
+  return coord;
+}
 
-mainPin.addEventListener('mouseup', function (evt) {
-  if (isPageActivated) {
-    activateForms();
-    validateForms();
-    renderPins(offers);
-    fillAddressInput(evt.pageX, evt.pageY, locationParams.MAIN_PIN_WIDTH / 2,
-        locationParams.MAIN_PIN_HEIGHT);
+// обработчик клика на main-pin
+function mainPinMouseDownHandler(evt) {
+  evt.preventDefault();
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  function mainPinMouseMoveHandler(moveEvt) {
+    moveEvt.preventDefault();
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+    var validatedX = validateCoord(mainPin.offsetLeft - shift.x, 0 - mainPin.offsetWidth / 2, locationParams.BLOCK_MAX_WIDTH - mainPin.offsetWidth / 2);
+    mainPin.style.left = validatedX + 'px';
+    var validatedY = validateCoord(mainPin.offsetTop - shift.y, locationParams.LOCATION_Y_TOP - mainPin.offsetHeight,
+        locationParams.LOCATION_Y_BOTTOM - mainPin.offsetHeight);
+    mainPin.style.top = validatedY + 'px';
+
+    fillAddressInput(parseInt(mainPin.style.left, 10) + mainPin.offsetWidth / 2,
+        parseInt(mainPin.style.top, 10) + mainPin.offsetHeight);
   }
-  isPageActivated = false;
-});
+
+  function mainPinMouseUpHandler(upEvt) {
+    upEvt.preventDefault();
+    if (isPageActivated) {
+      activateForms();
+      validateForms();
+      renderPins(offers);
+    }
+    document.removeEventListener('mousemove', mainPinMouseMoveHandler);
+    isPageActivated = false;
+  }
+  document.addEventListener('mousemove', mainPinMouseMoveHandler);
+  document.addEventListener('mouseup', mainPinMouseUpHandler);
+}
+
+deactivatePage();
+mainPin.addEventListener('mousedown', mainPinMouseDownHandler);
+
