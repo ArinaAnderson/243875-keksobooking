@@ -29,7 +29,7 @@
     return li;
   }
 
-  window.cardData = function(offerData) { // renderCard(offerData)
+  window.cardData = function (offerData) {
     var card = cardTemplate.cloneNode(true);
     card.querySelector('.popup__title').textContent = offerData.offer.title;
     card.querySelector('.popup__text--address').textContent = offerData.offer.address;

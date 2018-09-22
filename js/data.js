@@ -54,7 +54,7 @@
     }
     return list;
   }
-  
+
   window.data = function (num) { // createOfferData(num)
     var x = getRandomNumber(locationParams.PIN_WIDTH / 2, locationParams.BLOCK_MAX_WIDTH + 1 - locationParams.PIN_WIDTH / 2);
     var y = getRandomNumber(locationParams.LOCATION_Y_BOTTOM, locationParams.LOCATION_Y_TOP + 1);
@@ -82,6 +82,3 @@
     };
   };
 })();
-
-
-
