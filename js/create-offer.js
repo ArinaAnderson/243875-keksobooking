@@ -35,11 +35,6 @@
     LOCATION_Y_BOTTOM: 630, // нижняя граница доступной области главного маркера
   };
 
-  // получение случайного числа в пределах указанного диапазона
-  function getRandomNumber(min, max) {
-    return Math.floor(Math.random() * (max + 1 - min)) + min;
-  }
-
   function getImageAddress(varPart) {
     var constPartNumber = varPart < 10 ? '0' : '';
     return 'img/avatars/user' + constPartNumber + varPart + '.png';
@@ -55,9 +50,9 @@
     return list;
   }
 
-  window.data = function (num) { // createOfferData(num)
-    var x = getRandomNumber(locationParams.PIN_WIDTH / 2, locationParams.BLOCK_MAX_WIDTH + 1 - locationParams.PIN_WIDTH / 2);
-    var y = getRandomNumber(locationParams.LOCATION_Y_BOTTOM, locationParams.LOCATION_Y_TOP + 1);
+  window.createOffer = function (num) { // createOfferData(num)
+    var x = window.utils.getRandomNumber(locationParams.PIN_WIDTH / 2, locationParams.BLOCK_MAX_WIDTH + 1 - locationParams.PIN_WIDTH / 2);
+    var y = window.utils.getRandomNumber(locationParams.LOCATION_Y_BOTTOM, locationParams.LOCATION_Y_TOP + 1);
     return {
       author: {
         avatar: getImageAddress(num + 1)
@@ -65,13 +60,13 @@
       offer: {
         title: OFFER_TITILES[num],
         address: '' + x + ', ' + y,
-        price: getRandomNumber(MIN_PRICE, MAX_PRICE + 1),
+        price: window.utils.getRandomNumber(MIN_PRICE, MAX_PRICE + 1),
         type: TYPES[Math.floor(Math.random() * TYPES.length)],
-        rooms: '' + getRandomNumber(MIN_ROOM_NUM, MAX_ROOM_NUM + 1),
-        guests: '' + getRandomNumber(MIN_GUESTS_NUM, MAX_GUESTS_NUM + 1),
+        rooms: '' + window.utils.getRandomNumber(MIN_ROOM_NUM, MAX_ROOM_NUM + 1),
+        guests: '' + window.utils.getRandomNumber(MIN_GUESTS_NUM, MAX_GUESTS_NUM + 1),
         checkin: CHECKINS[Math.floor(Math.random() * CHECKINS.length)],
         checkout: CHECKOUTS[Math.floor(Math.random() * CHECKOUTS.length)],
-        features: shuffleArray(FEATURES).slice(0, getRandomNumber(1, num)),
+        features: shuffleArray(FEATURES).slice(0, window.utils.getRandomNumber(1, num)),
         description: '',
         photos: shuffleArray(PHOTOS)
       },

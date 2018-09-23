@@ -6,11 +6,8 @@
   };
 
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-  var map = document.querySelector('.map');
   var mapPins = document.querySelector('.map__pins');
-  var mapFilters = document.querySelector('.map__filters-container');
   var activePin;
-  var activeCard;
 
   function activatePin(pin) {
     deactivatePin();
@@ -24,37 +21,6 @@
     }
   }
 
-  function addCard(offerData) {
-    var fragment = document.createDocumentFragment();
-    activeCard = fragment.appendChild(window.cardData(offerData));
-    map.insertBefore(fragment, mapFilters);
-
-    var btn = activeCard.querySelector('.popup__close');
-    btn.focus();
-    btn.addEventListener('click', clickCardBtnHandler);
-
-    document.addEventListener('keydown', cardEscPressHandler);
-  }
-
-  function removeCard() {
-    if (activeCard) {
-      activeCard.parentElement.removeChild(activeCard);
-    }
-    activeCard = null;
-    document.removeEventListener('keydown', cardEscPressHandler);
-  }
-
-  function cardEscPressHandler(evt) {
-    window.utils.isEscPress(evt, function () {
-      removeCard();
-      deactivatePin();
-    });
-  }
-  function clickCardBtnHandler() {
-    removeCard();
-    deactivatePin();
-  }
-
   function renderPin(offerData) {
     var pin = pinTemplate.cloneNode(true);
     pin.style = 'left: ' + (offerData.location.x - locationParams.PIN_WIDTH / 2) +
@@ -63,28 +29,28 @@
     pin.querySelector('img').alt = offerData.offer.title;
     pin.addEventListener('click', function (evt) {
       activatePin(pin);
-      removeCard();
+      window.card.remove(deactivatePin); // removeCard();
       activePin = evt.currentTarget;
-      addCard(offerData);
+      window.card.add(offerData, deactivatePin); // addCard(offerData);
     });
     return pin;
   }
 
-  window.pinRendering = {
-    renderPins: function (offersData) {
+  window.pin = {
+    render: function (offersData) {
       var fragment = document.createDocumentFragment();
       for (var i = 0; i < offersData.length; i++) {
         fragment.appendChild(renderPin(offersData[i]));
       }
       mapPins.appendChild(fragment);
     },
-    deletePins: function (elem) {
+    delete: function (elem) {
       var nextBtn = elem.nextElementSibling;
       while (nextBtn) {
         nextBtn.parentElement.removeChild(nextBtn);
         nextBtn = elem.nextElementSibling;
       }
-      removeCard();
+      window.card.remove(deactivatePin); // removeCard();
     }
   };
 })();

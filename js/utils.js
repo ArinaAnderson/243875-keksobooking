@@ -8,10 +8,13 @@
         action();
       }
     },
-    manageElemDisabledState: function (elementList, disable) {
+    toggleDisableAttr: function (elementList, disable) {
       for (var i = 0; i < elementList.length; i++) {
         elementList[i].disabled = disable;
       }
+    },
+    getRandomNumber: function (min, max) {
+      return Math.floor(Math.random() * (max + 1 - min)) + min;
     }
   };
 })();

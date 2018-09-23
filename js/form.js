@@ -1,7 +1,10 @@
 'use strict';
 // Модуль формы объявления
 (function () {
+  var map = document.querySelector('.map');
   var adForm = document.querySelector('.ad-form');
+  var fieldsets = document.querySelectorAll('fieldset');
+  var selectItems = document.querySelectorAll('select');
   var addressInput = adForm.querySelector('input[name="address"]');
   var priceInput = document.querySelector('input[name="price"]');
   var typeSelect = document.querySelector('select[name="type"]');
@@ -71,8 +74,8 @@
     validateGuestNum();
   }
 
-  window.offerForm = {
-    validateForms: function () {
+  window.form = {
+    validate: function () {
       typeSelect.addEventListener('change', typeSelectHandler);
       checkinSelect.addEventListener('change', timeSelectHandler);
       checkoutSelect.addEventListener('change', timeSelectHandler);
@@ -81,6 +84,18 @@
     },
     fillAddressInput: function (x, y) {
       addressInput.value = x + ', ' + y;
-    }
+    },
+    activate: function () {
+      window.utils.toggleDisableAttr(fieldsets, false);
+      window.utils.toggleDisableAttr(selectItems, false);
+      map.classList.remove('map--faded');
+      adForm.classList.remove('ad-form--disabled');
+    },
+    deactivate: function () {
+      window.utils.toggleDisableAttr(fieldsets, true);
+      window.utils.toggleDisableAttr(selectItems, true);
+      map.classList.add('map--faded');
+      adForm.classList.add('ad-form--disabled');
+    },
   };
 })();

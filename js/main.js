@@ -14,43 +14,26 @@
   };
   var offers;
   var isPageActivated;
-  var map = document.querySelector('.map');
   var mainPin = document.querySelector('.map__pin--main');
-  var fieldsets = document.querySelectorAll('fieldset');
-  var selectItems = document.querySelectorAll('select');
-  var adForm = document.querySelector('.ad-form');
+  // var adForm = document.querySelector('.ad-form');
 
   function createOffersList(number) {
     var offersArray = [];
     for (var i = 0; i < number; i++) {
-      offersArray.push(window.data(i));
+      offersArray.push(window.createOffer(i));
     }
     return offersArray;
-  }
-
-
-  function activateForms() {
-    window.utils.manageElemDisabledState(fieldsets, false);
-    window.utils.manageElemDisabledState(selectItems, false);
-    map.classList.remove('map--faded');
-    adForm.classList.remove('ad-form--disabled');
-  }
-  function deactivateForms() {
-    window.utils.manageElemDisabledState(fieldsets, true);
-    window.utils.manageElemDisabledState(selectItems, true);
-    map.classList.add('map--faded');
-    adForm.classList.add('ad-form--disabled');
   }
 
   function deactivatePage() {
     isPageActivated = true;
     offers = createOffersList(OFFERS_NUMBER);
-    deactivateForms();
+    window.form.deactivate();
     mainPin.style.left = locationParams.MAIN_PIN_X;
     mainPin.style.top = locationParams.MAIN_PIN_Y;
-    window.offerForm.fillAddressInput(parseInt(mainPin.style.left, 10) + locationParams.MAIN_PIN_WIDTH / 2,
+    window.form.fillAddressInput(parseInt(mainPin.style.left, 10) + locationParams.MAIN_PIN_WIDTH / 2,
         parseInt(mainPin.style.top, 10) + locationParams.MAIN_PIN_HEIGHT / 2);
-    window.pinRendering.deletePins(mainPin);
+    window.pin.delete(mainPin);
   }
 
 
@@ -85,16 +68,16 @@
           locationParams.LOCATION_Y_BOTTOM - mainPin.offsetHeight);
       mainPin.style.top = validatedY + 'px';
 
-      window.offerForm.fillAddressInput(parseInt(mainPin.style.left, 10) + mainPin.offsetWidth / 2,
+      window.form.fillAddressInput(parseInt(mainPin.style.left, 10) + mainPin.offsetWidth / 2,
           parseInt(mainPin.style.top, 10) + mainPin.offsetHeight);
     }
 
     function mainPinMouseUpHandler(upEvt) {
       upEvt.preventDefault();
       if (isPageActivated) {
-        activateForms();
-        window.offerForm.validateForms();
-        window.pinRendering.renderPins(offers);
+        window.form.activate();
+        window.form.validate();
+        window.pin.render(offers);
       }
       document.removeEventListener('mousemove', mainPinMouseMoveHandler);
       isPageActivated = false;
