@@ -71,13 +71,9 @@
 
       var btn = activeCard.querySelector('.popup__close');
       btn.focus();
-      btn.addEventListener('click', function () {
-        clickCardBtnHandler();
-      });
+      btn.addEventListener('click', clickCardBtnHandler);
 
-      document.addEventListener('keydown', function (evt) {
-        cardEscPressHandler(evt);
-      });
+      document.addEventListener('keydown', cardEscPressHandler);
     },
     remove: function () {
       if (activeCard) {

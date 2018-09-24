@@ -14,6 +14,15 @@
     },
     getRandomNumber: function (min, max) {
       return Math.floor(Math.random() * (max + 1 - min)) + min;
+    },
+    shuffleArray: function (list) {
+      for (var i = list.length - 1; i > 0; i--) {
+        var randomNum = Math.floor(Math.random() * (i + 1));
+        var randomElement = list[randomNum];
+        list[randomNum] = list[i];
+        list[i] = randomElement;
+      }
+      return list;
     }
   };
 })();

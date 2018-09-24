@@ -39,16 +39,6 @@
     return 'img/avatars/user' + constPartNumber + varPart + '.png';
   }
 
-  function shuffleArray(list) {
-    for (var i = list.length - 1; i > 0; i--) {
-      var randomNum = Math.floor(Math.random() * (i + 1));
-      var randomElement = list[randomNum];
-      list[randomNum] = list[i];
-      list[i] = randomElement;
-    }
-    return list;
-  }
-
   window.createData = function (num) {
     var x = window.utils.getRandomNumber(locationParams.PIN_WIDTH / 2, locationParams.BLOCK_MAX_WIDTH + 1 - locationParams.PIN_WIDTH / 2);
     var y = window.utils.getRandomNumber(locationParams.LOCATION_Y_BOTTOM, locationParams.LOCATION_Y_TOP + 1);
@@ -65,9 +55,9 @@
         guests: '' + window.utils.getRandomNumber(MIN_GUESTS_NUM, MAX_GUESTS_NUM + 1),
         checkin: CHECKINS[Math.floor(Math.random() * CHECKINS.length)],
         checkout: CHECKOUTS[Math.floor(Math.random() * CHECKOUTS.length)],
-        features: shuffleArray(FEATURES).slice(0, window.utils.getRandomNumber(1, num)),
+        features: window.utils.shuffleArray(FEATURES).slice(0, window.utils.getRandomNumber(1, num)),
         description: '',
-        photos: shuffleArray(PHOTOS)
+        photos: window.utils.shuffleArray(PHOTOS)
       },
       location: {
         x: x,
