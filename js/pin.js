@@ -10,15 +10,8 @@
   var activePin;
 
   function activatePin(pin) {
-    deactivatePin();
+    window.pin.deactivate();
     pin.classList.add('map__pin--active');
-  }
-
-  function deactivatePin() {
-    if (activePin) {
-      activePin.classList.remove('map__pin--active');
-      activePin.focus();
-    }
   }
 
   function renderPin(offerData) {
@@ -29,9 +22,9 @@
     pin.querySelector('img').alt = offerData.offer.title;
     pin.addEventListener('click', function (evt) {
       activatePin(pin);
-      window.card.remove(deactivatePin); // removeCard();
+      window.card.remove();
       activePin = evt.currentTarget;
-      window.card.add(offerData, deactivatePin); // addCard(offerData);
+      window.card.add(offerData);
     });
     return pin;
   }
@@ -50,7 +43,13 @@
         nextBtn.parentElement.removeChild(nextBtn);
         nextBtn = elem.nextElementSibling;
       }
-      window.card.remove(deactivatePin); // removeCard();
+      window.card.remove();
+    },
+    deactivate: function () {
+      if (activePin) {
+        activePin.classList.remove('map__pin--active');
+        activePin.focus();
+      }
     }
   };
 })();

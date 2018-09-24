@@ -1,5 +1,4 @@
 'use strict';
-// Модуль создания карточки объявления
 (function () {
   var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
   var mapFilters = document.querySelector('.map__filters-container');
@@ -53,19 +52,19 @@
     return card;
   }
 
-  function cardEscPressHandler(evt, action) {
+  function cardEscPressHandler(evt) {
     window.utils.isEscPress(evt, function () {
-      window.card.remove(); // removeCard()
-      action(); // deactivatePin();
+      window.card.remove();
+      window.pin.deactivate();
     });
   }
-  function clickCardBtnHandler(action) {
-    window.card.remove(); // removeCard()
-    action(); // deactivatePin();
+  function clickCardBtnHandler() {
+    window.card.remove();
+    window.pin.deactivate();
   }
 
   window.card = {
-    add: function (offerData, action) {
+    add: function (offerData) {
       var fragment = document.createDocumentFragment();
       activeCard = fragment.appendChild(renderCard(offerData));
       map.insertBefore(fragment, mapFilters);
@@ -73,21 +72,19 @@
       var btn = activeCard.querySelector('.popup__close');
       btn.focus();
       btn.addEventListener('click', function () {
-        clickCardBtnHandler(action);
+        clickCardBtnHandler();
       });
 
       document.addEventListener('keydown', function (evt) {
-        cardEscPressHandler(evt, action);
+        cardEscPressHandler(evt);
       });
     },
-    remove: function (action) {
+    remove: function () {
       if (activeCard) {
         activeCard.parentElement.removeChild(activeCard);
       }
       activeCard = null;
-      document.removeEventListener('keydown', function (evt) {
-        cardEscPressHandler(evt, action);
-      });
+      document.removeEventListener('keydown', cardEscPressHandler);
     }
   };
 })();

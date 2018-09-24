@@ -1,5 +1,4 @@
 'use strict';
-// Модуль data.js
 (function () {
   var OFFER_TITILES = [
     'Большая уютная квартира',
@@ -50,7 +49,7 @@
     return list;
   }
 
-  window.createOffer = function (num) { // createOfferData(num)
+  window.createData = function (num) {
     var x = window.utils.getRandomNumber(locationParams.PIN_WIDTH / 2, locationParams.BLOCK_MAX_WIDTH + 1 - locationParams.PIN_WIDTH / 2);
     var y = window.utils.getRandomNumber(locationParams.LOCATION_Y_BOTTOM, locationParams.LOCATION_Y_TOP + 1);
     return {

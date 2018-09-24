@@ -1,5 +1,4 @@
 'use strict';
-// Модуль формы объявления
 (function () {
   var map = document.querySelector('.map');
   var adForm = document.querySelector('.ad-form');
@@ -86,6 +85,11 @@
       addressInput.value = x + ', ' + y;
     },
     activate: function () {
+      typeSelect.addEventListener('change', typeSelectHandler);
+      checkinSelect.addEventListener('change', timeSelectHandler);
+      checkoutSelect.addEventListener('change', timeSelectHandler);
+      roomsSelect.addEventListener('change', guestNumSelectHandler);
+      guestsSelect.addEventListener('change', guestNumSelectHandler);
       window.utils.toggleDisableAttr(fieldsets, false);
       window.utils.toggleDisableAttr(selectItems, false);
       map.classList.remove('map--faded');

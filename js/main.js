@@ -20,7 +20,7 @@
   function createOffersList(number) {
     var offersArray = [];
     for (var i = 0; i < number; i++) {
-      offersArray.push(window.createOffer(i));
+      offersArray.push(window.createData(i));
     }
     return offersArray;
   }
@@ -76,7 +76,6 @@
       upEvt.preventDefault();
       if (isPageActivated) {
         window.form.activate();
-        window.form.validate();
         window.pin.render(offers);
       }
       document.removeEventListener('mousemove', mainPinMouseMoveHandler);
