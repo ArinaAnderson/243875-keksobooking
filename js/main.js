@@ -1,42 +1,16 @@
 'use strict';
 (function () {
-  var OFFERS_NUMBER = 8;
   var locationParams = {
     BLOCK_MAX_WIDTH: 1200,
-    PIN_WIDTH: 40,
-    PIN_HEIGHT: 40,
     MAIN_PIN_WIDTH: 40,
     MAIN_PIN_HEIGHT: 44,
     LOCATION_Y_TOP: 130, // верхняя граница доступной области главного маркера
     LOCATION_Y_BOTTOM: 630, // нижняя граница доступной области главного маркера
-    MAIN_PIN_X: 570, // изначальное состояние main-pin до активации страницы (style="left 570px")
-    MAIN_PIN_Y: 375, // изначальное состояние main-pin до активации страницы (style="top 375px")
+    MAIN_PIN_INIT_X: 570, // изначальное состояние main-pin до активации страницы (style="left 570px")
+    MAIN_PIN_INIT_Y: 375, // изначальное состояние main-pin до активации страницы (style="top 375px")
   };
-  var offers;
   var isPageActivated;
   var mainPin = document.querySelector('.map__pin--main');
-  // var adForm = document.querySelector('.ad-form');
-
-  function createOffersList(number) {
-    var offersArray = [];
-    for (var i = 0; i < number; i++) {
-      offersArray.push(window.createData(i));
-    }
-    return offersArray;
-  }
-
-  function deactivatePage() {
-    isPageActivated = true;
-    offers = createOffersList(OFFERS_NUMBER);
-    window.form.deactivate();
-    mainPin.style.left = locationParams.MAIN_PIN_X;
-    mainPin.style.top = locationParams.MAIN_PIN_Y;
-    window.form.fillAddressInput(parseInt(mainPin.style.left, 10) + locationParams.MAIN_PIN_WIDTH / 2,
-        parseInt(mainPin.style.top, 10) + locationParams.MAIN_PIN_HEIGHT / 2);
-    window.pin.delete(mainPin);
-  }
-
-
   // функция проверяет, не выходит ли за границы доступной области main-pin
   function validateCoord(coord, minValue, maxValue) {
     coord = coord < minValue ? minValue : coord;
@@ -70,21 +44,36 @@
 
       window.form.fillAddressInput(parseInt(mainPin.style.left, 10) + mainPin.offsetWidth / 2,
           parseInt(mainPin.style.top, 10) + mainPin.offsetHeight);
+
     }
 
     function mainPinMouseUpHandler(upEvt) {
       upEvt.preventDefault();
       if (isPageActivated) {
         window.form.activate();
-        window.pin.render(offers);
+        window.backend.load(window.pin.render, window.backend.errorHandler);
       }
       document.removeEventListener('mousemove', mainPinMouseMoveHandler);
+      document.removeEventListener('mouseup', mainPinMouseUpHandler);
       isPageActivated = false;
     }
     document.addEventListener('mousemove', mainPinMouseMoveHandler);
     document.addEventListener('mouseup', mainPinMouseUpHandler);
   }
 
-  deactivatePage();
+  window.main = {
+    deactivate: function () {
+      isPageActivated = true;
+      window.form.deactivate();
+      mainPin.style.left = locationParams.MAIN_PIN_INIT_X + 'px';
+      mainPin.style.top = locationParams.MAIN_PIN_INIT_Y + 'px';
+      window.form.fillAddressInput(parseInt(mainPin.style.left, 10) + locationParams.MAIN_PIN_WIDTH / 2,
+          parseInt(mainPin.style.top, 10) + locationParams.MAIN_PIN_HEIGHT / 2);
+      window.pin.delete(mainPin);
+    }
+  };
+
+  window.main.deactivate();
+
   mainPin.addEventListener('mousedown', mainPinMouseDownHandler);
 })();

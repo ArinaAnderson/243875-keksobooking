@@ -568,7 +568,7 @@ fieldset {
   cursor: pointer;
 }
 
-.ad-form-header__drop-zone:hover {
+.ad-form-header:not([disabled]) .ad-form-header__drop-zone:hover {
   color: #ff5635;
 }
 
@@ -614,9 +614,9 @@ fieldset {
   border-radius: 4px;
 }
 
-.ad-form__element input:hover,
-.ad-form__element select:hover,
-.ad-form__element textarea:hover {
+.ad-form__element:not([disabled]) input:hover,
+.ad-form__element select:not([disabled]):hover,
+.ad-form__element:not([disabled]) textarea:hover {
   border-color: #ffaa99;
 }
 
@@ -667,7 +667,7 @@ fieldset {
   cursor: pointer;
 }
 
-.feature:hover {
+.features:not([disabled]) .feature:hover {
   -webkit-box-shadow: inset 0 0 0 1px #ffaa99;
           box-shadow: inset 0 0 0 1px #ffaa99;
 }
@@ -794,7 +794,7 @@ fieldset {
   cursor: pointer;
 }
 
-.ad-form__drop-zone:hover {
+.ad-form__element:not([disabled]) .ad-form__drop-zone:hover {
   color: #ff5635;
 }
 
@@ -839,7 +839,7 @@ fieldset {
   border-radius: 8px;
 }
 
-.ad-form__submit:hover,
+.ad-form__element:not([disabled]) .ad-form__submit:hover,
 .ad-form__submit:focus {
   border-color: #ff6d51;
 }
