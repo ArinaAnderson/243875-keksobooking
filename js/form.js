@@ -2,6 +2,7 @@
 (function () {
   var map = document.querySelector('.map');
   var adForm = document.querySelector('.ad-form');
+  var filterForm = document.querySelector('.map__filters');
   var fieldsets = document.querySelectorAll('fieldset');
   var selectItems = document.querySelectorAll('select');
   var addressInput = adForm.querySelector('input[name="address"]');
@@ -73,23 +74,19 @@
     validateGuestNum();
   }
 
+  function validateFormFields() {
+    typeSelect.addEventListener('change', typeSelectHandler);
+    checkinSelect.addEventListener('change', timeSelectHandler);
+    checkoutSelect.addEventListener('change', timeSelectHandler);
+    roomsSelect.addEventListener('change', guestNumSelectHandler);
+    guestsSelect.addEventListener('change', guestNumSelectHandler);
+  }
   window.form = {
-    validate: function () {
-      typeSelect.addEventListener('change', typeSelectHandler);
-      checkinSelect.addEventListener('change', timeSelectHandler);
-      checkoutSelect.addEventListener('change', timeSelectHandler);
-      roomsSelect.addEventListener('change', guestNumSelectHandler);
-      guestsSelect.addEventListener('change', guestNumSelectHandler);
-    },
     fillAddressInput: function (x, y) {
       addressInput.value = x + ', ' + y;
     },
     activate: function () {
-      typeSelect.addEventListener('change', typeSelectHandler);
-      checkinSelect.addEventListener('change', timeSelectHandler);
-      checkoutSelect.addEventListener('change', timeSelectHandler);
-      roomsSelect.addEventListener('change', guestNumSelectHandler);
-      guestsSelect.addEventListener('change', guestNumSelectHandler);
+      validateFormFields();
       window.utils.toggleDisableAttr(fieldsets, false);
       window.utils.toggleDisableAttr(selectItems, false);
       map.classList.remove('map--faded');
@@ -98,8 +95,23 @@
     deactivate: function () {
       window.utils.toggleDisableAttr(fieldsets, true);
       window.utils.toggleDisableAttr(selectItems, true);
-      map.classList.add('map--faded');
       adForm.classList.add('ad-form--disabled');
-    },
+      filterForm.reset();
+      adForm.reset();
+      setPriceMin();
+      map.classList.add('map--faded');
+    }
   };
+
+  function formSubmitHandler() {
+    window.main.deactivate();
+    window.notifications.notifyOfSuccess();
+  }
+  adForm.addEventListener('submit', function (evt) {
+    window.backend.save(formSubmitHandler, window.notifications.notifyOfError, new FormData(adForm));
+    evt.preventDefault();
+  });
+  adForm.addEventListener('reset', function () {
+    window.main.deactivate();
+  });
 })();
