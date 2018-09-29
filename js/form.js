@@ -105,10 +105,10 @@
 
   function formSubmitHandler() {
     window.main.deactivate();
-    window.backend.notifyOfSuccess();
+    window.notifications.notifyOfSuccess();
   }
   adForm.addEventListener('submit', function (evt) {
-    window.backend.save(formSubmitHandler, window.backend.errorHandler, new FormData(adForm));
+    window.backend.save(formSubmitHandler, window.notifications.notifyOfError, new FormData(adForm));
     evt.preventDefault();
   });
   adForm.addEventListener('reset', function () {

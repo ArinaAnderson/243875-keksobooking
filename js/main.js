@@ -36,7 +36,8 @@
         x: moveEvt.clientX,
         y: moveEvt.clientY
       };
-      var validatedX = validateCoord(mainPin.offsetLeft - shift.x, 0 - mainPin.offsetWidth / 2, locationParams.BLOCK_MAX_WIDTH - mainPin.offsetWidth / 2);
+      var validatedX = validateCoord(mainPin.offsetLeft - shift.x, 0 - mainPin.offsetWidth / 2,
+          locationParams.BLOCK_MAX_WIDTH - mainPin.offsetWidth / 2);
       mainPin.style.left = validatedX + 'px';
       var validatedY = validateCoord(mainPin.offsetTop - shift.y, locationParams.LOCATION_Y_TOP - mainPin.offsetHeight,
           locationParams.LOCATION_Y_BOTTOM - mainPin.offsetHeight);
@@ -51,7 +52,7 @@
       upEvt.preventDefault();
       if (isPageActivated) {
         window.form.activate();
-        window.backend.load(window.pin.render, window.backend.errorHandler);
+        window.backend.load(window.pin.render, window.notifications.notifyOfError);
       }
       document.removeEventListener('mousemove', mainPinMouseMoveHandler);
       document.removeEventListener('mouseup', mainPinMouseUpHandler);
