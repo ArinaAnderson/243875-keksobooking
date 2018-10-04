@@ -1,5 +1,6 @@
 'use strict';
 (function () {
+  var OFFERS_NUMBER = 5;
   var locationParams = {
     PIN_WIDTH: 40,
     PIN_HEIGHT: 40,
@@ -32,7 +33,8 @@
   window.pin = {
     render: function (offersData) {
       var fragment = document.createDocumentFragment();
-      for (var i = 0; i < offersData.length; i++) {
+      var offersNum = offersData.length > OFFERS_NUMBER ? OFFERS_NUMBER : offersData.length;
+      for (var i = 0; i < offersNum; i++) {
         fragment.appendChild(renderPin(offersData[i]));
       }
       mapPins.appendChild(fragment);

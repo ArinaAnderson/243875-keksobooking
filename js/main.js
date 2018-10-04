@@ -11,11 +11,41 @@
   };
   var isPageActivated;
   var mainPin = document.querySelector('.map__pin--main');
+
+  var loadedPins = [];
+  var selectType = document.querySelector('#housing-type');
+  var selectPrice = document.querySelector('#housing-price');
+  var selectRoomNum = document.querySelector('#housing-rooms');
+  var selectGuestNum = document.querySelector('#housing-guests');
+  var selectFeatures = document.querySelector('#housing-features');
+
+  // обработка изменения полей фильтров
+  selectType.addEventListener('change', function (evt) {
+    window.filtering.filterSelectChangeHandler(evt, loadedPins);
+  });
+  selectPrice.addEventListener('change', function (evt) {
+    window.filtering.filterSelectChangeHandler(evt, loadedPins);
+  });
+  selectRoomNum.addEventListener('change', function (evt) {
+    window.filtering.filterSelectChangeHandler(evt, loadedPins);
+  });
+  selectGuestNum.addEventListener('change', function (evt) {
+    window.filtering.filterSelectChangeHandler(evt, loadedPins);
+  });
+  selectFeatures.addEventListener('change', function (evt) {
+    window.filtering.filterFeatureChangeHandler(evt, loadedPins);
+  });
+
   // функция проверяет, не выходит ли за границы доступной области main-pin
   function validateCoord(coord, minValue, maxValue) {
     coord = coord < minValue ? minValue : coord;
     coord = coord > maxValue ? maxValue : coord;
     return coord;
+  }
+
+  function succesLoadHandler(data) {
+    loadedPins = data;
+    window.pin.render(window.utils.shuffleArray(loadedPins));
   }
 
   // обработчик клика на main-pin
@@ -51,8 +81,8 @@
     function mainPinMouseUpHandler(upEvt) {
       upEvt.preventDefault();
       if (isPageActivated) {
+        window.backend.load(succesLoadHandler, window.notifications.notifyOfError);
         window.form.activate();
-        window.backend.load(window.pin.render, window.notifications.notifyOfError);
       }
       document.removeEventListener('mousemove', mainPinMouseMoveHandler);
       document.removeEventListener('mouseup', mainPinMouseUpHandler);
@@ -75,6 +105,5 @@
   };
 
   window.main.deactivate();
-
   mainPin.addEventListener('mousedown', mainPinMouseDownHandler);
 })();

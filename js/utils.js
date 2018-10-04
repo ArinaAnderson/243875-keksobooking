@@ -1,6 +1,7 @@
 'use strict';
 (function () {
   var ESC_KEYCODE = 27;
+  var DEBOUNCE_INT = 500;
   window.utils = {
     isEscPress: function (evt, action) {
       if (evt.keyCode === ESC_KEYCODE) {
@@ -23,6 +24,18 @@
         list[i] = randomElement;
       }
       return list;
+    },
+    debounce: function (cb) {
+      var lastTimeout = null;
+      return function () {
+        var args = arguments;
+        if (lastTimeout) {
+          window.clearTimeout(lastTimeout);
+        }
+        lastTimeout = window.setTimeout(function () {
+          cb.apply(null, args);
+        }, DEBOUNCE_INT);
+      };
     }
   };
 })();
