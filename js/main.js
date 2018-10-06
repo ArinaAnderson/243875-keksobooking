@@ -13,28 +13,8 @@
   var mainPin = document.querySelector('.map__pin--main');
 
   var loadedPins = [];
-  var selectType = document.querySelector('#housing-type');
-  var selectPrice = document.querySelector('#housing-price');
-  var selectRoomNum = document.querySelector('#housing-rooms');
-  var selectGuestNum = document.querySelector('#housing-guests');
+  var filterForm = document.querySelector('.map__filters');
   var selectFeatures = document.querySelector('#housing-features');
-
-  // обработка изменения полей фильтров
-  selectType.addEventListener('change', function (evt) {
-    window.filtering.filterSelectChangeHandler(evt, loadedPins);
-  });
-  selectPrice.addEventListener('change', function (evt) {
-    window.filtering.filterSelectChangeHandler(evt, loadedPins);
-  });
-  selectRoomNum.addEventListener('change', function (evt) {
-    window.filtering.filterSelectChangeHandler(evt, loadedPins);
-  });
-  selectGuestNum.addEventListener('change', function (evt) {
-    window.filtering.filterSelectChangeHandler(evt, loadedPins);
-  });
-  selectFeatures.addEventListener('change', function (evt) {
-    window.filtering.filterFeatureChangeHandler(evt, loadedPins);
-  });
 
   // функция проверяет, не выходит ли за границы доступной области main-pin
   function validateCoord(coord, minValue, maxValue) {
@@ -43,6 +23,7 @@
     return coord;
   }
 
+  // обработчик удачной загрузки похожих объявлений
   function succesLoadHandler(data) {
     loadedPins = data;
     window.pin.render(window.utils.shuffleArray(loadedPins));
@@ -69,6 +50,7 @@
       var validatedX = validateCoord(mainPin.offsetLeft - shift.x, 0 - mainPin.offsetWidth / 2,
           locationParams.BLOCK_MAX_WIDTH - mainPin.offsetWidth / 2);
       mainPin.style.left = validatedX + 'px';
+
       var validatedY = validateCoord(mainPin.offsetTop - shift.y, locationParams.LOCATION_Y_TOP - mainPin.offsetHeight,
           locationParams.LOCATION_Y_BOTTOM - mainPin.offsetHeight);
       mainPin.style.top = validatedY + 'px';
@@ -98,12 +80,21 @@
       window.form.deactivate();
       mainPin.style.left = locationParams.MAIN_PIN_INIT_X + 'px';
       mainPin.style.top = locationParams.MAIN_PIN_INIT_Y + 'px';
+
       window.form.fillAddressInput(parseInt(mainPin.style.left, 10) + locationParams.MAIN_PIN_WIDTH / 2,
           parseInt(mainPin.style.top, 10) + locationParams.MAIN_PIN_HEIGHT / 2);
+
       window.pin.delete(mainPin);
     }
   };
 
   window.main.deactivate();
   mainPin.addEventListener('mousedown', mainPinMouseDownHandler);
+
+  filterForm.addEventListener('change', function (evt) {
+    window.filtering.filterSelectChangeHandler(evt, loadedPins);
+  });
+  selectFeatures.addEventListener('change', function (evt) {
+    window.filtering.filterFeatureChangeHandler(evt, loadedPins);
+  });
 })();

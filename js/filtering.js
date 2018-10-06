@@ -1,6 +1,5 @@
 'use strict';
 (function () {
-  var mainPin = document.querySelector('.map__pin--main');
   var filterValues = {
     'housing-type': 'any',
     'housing-price': 'any',
@@ -14,25 +13,27 @@
   }
 
   function filterRoom(pin) {
-    return filterValues['housing-rooms'] !== 'any' ? pin.offer.rooms === (filterValues['housing-rooms'] * 1) : true;
+    return filterValues['housing-rooms'] !== 'any' ? pin.offer.rooms === +filterValues['housing-rooms'] : true;
   }
 
   function filterGuest(pin) {
-    return filterValues['housing-guests'] !== 'any' ? pin.offer.guests === (filterValues['housing-guests'] * 1) : true;
+    return filterValues['housing-guests'] !== 'any' ? pin.offer.guests === +filterValues['housing-guests'] : true;
   }
 
-  function filterPrice(pin) {
-    switch (filterValues['housing-price']) {
-      case 'low':
-        return pin.offer.price < 10000;
-      case 'middle':
-        return pin.offer.price >= 10000 && pin.offer.price <= 50000;
-      case 'high':
-        return pin.offer.price > 50000;
-      default:
-        return true;
+  var priceValueToPriceRange = {
+    'low': function (pin) {
+      return pin.offer.price < 10000;
+    },
+    'middle': function (pin) {
+      return pin.offer.price >= 10000 && pin.offer.price <= 50000;
+    },
+    'high': function (pin) {
+      return pin.offer.price > 50000;
+    },
+    'any': function () {
+      return true;
     }
-  }
+  };
 
   function filterFeatures(pin) {
     for (var i = 0; i < filterValues['features'].length; i++) {
@@ -44,28 +45,23 @@
   }
 
   window.filtering = {
-    updatePins: function (loadedPins) {
-      window.card.remove();
-      window.pin.delete(mainPin);
-
-      var selectedPins = loadedPins.filter(filterType).filter(filterPrice).filter(filterRoom)
-        .filter(filterGuest).filter(filterFeatures);// .filter(filterFeatures)
-      var uniquePins = selectedPins.filter(function (pin, index) {
-        return selectedPins.indexOf(pin) === index;
-      });
-      window.pin.render(uniquePins);
+    filterPins: function (loadedData) {
+      return loadedData.filter(filterType).filter(priceValueToPriceRange[filterValues['housing-price']])
+        .filter(filterRoom).filter(filterGuest).filter(filterFeatures);
     },
+
     filterSelectChangeHandler: window.utils.debounce(function (evt, loadedPins) {
       filterValues[evt.target.id] = evt.target.value;
-      window.filtering.updatePins(loadedPins);
+      window.pin.update(loadedPins);
     }),
+
     filterFeatureChangeHandler: window.utils.debounce(function (evt, loadedPins) {
       if (evt.target.checked) {
         filterValues['features'].push(evt.target.value);
       } else {
         filterValues['features'].splice(filterValues['features'].indexOf(evt.target.value), 1);
       }
-      window.filtering.updatePins(loadedPins);
+      window.pin.update(loadedPins);
     })
   };
 })();

@@ -9,6 +9,7 @@
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var mapPins = document.querySelector('.map__pins');
   var activePin;
+  var mainPin = document.querySelector('.map__pin--main');
 
   function activatePin(pin) {
     window.pin.deactivate();
@@ -52,6 +53,12 @@
         activePin.classList.remove('map__pin--active');
         activePin.focus();
       }
-    }
+    },
+    update: function (loadedPins) {
+      window.card.remove();
+      window.pin.delete(mainPin);
+      var selectedPins = window.filtering.filterPins(loadedPins);
+      window.pin.render(selectedPins);
+    },
   };
 })();
