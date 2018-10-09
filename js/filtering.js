@@ -1,67 +1,48 @@
 'use strict';
 (function () {
-  var filterValues = {
-    'housing-type': 'any',
-    'housing-price': 'any',
-    'housing-rooms': 'any',
-    'housing-guests': 'any',
-    'features': []
+  var fieldsToFunctions = {
+    'housing-type': filterType,
+    'housing-rooms': filterRoom,
+    'housing-guests': filterGuest,
   };
 
+  // var fieldsToFilter = [];  -получала список полей для фильтрования, потом
+  // переделала на сразу получения списка фил-ров, котор. надо применить к пинам
+  var filtersToApply = [];
+
+
+  // непосредственно фильтры по типу, гостям и комнатам:
+
   function filterType(pin) {
-    return filterValues['housing-type'] !== 'any' ? pin.offer.type === filterValues['housing-type'] : true;
+    return pin.offer.type === document.querySelector('#housing-type');
   }
 
   function filterRoom(pin) {
-    return filterValues['housing-rooms'] !== 'any' ? pin.offer.rooms === +filterValues['housing-rooms'] : true;
+    return pin.offer.rooms === +document.querySelector('#housing-rooms');
   }
 
   function filterGuest(pin) {
-    return filterValues['housing-guests'] !== 'any' ? pin.offer.guests === +filterValues['housing-guests'] : true;
-  }
-
-  var priceValueToPriceRange = {
-    'low': function (pin) {
-      return pin.offer.price < 10000;
-    },
-    'middle': function (pin) {
-      return pin.offer.price >= 10000 && pin.offer.price <= 50000;
-    },
-    'high': function (pin) {
-      return pin.offer.price > 50000;
-    },
-    'any': function () {
-      return true;
-    }
-  };
-
-  function filterFeatures(pin) {
-    for (var i = 0; i < filterValues['features'].length; i++) {
-      if (pin.offer.features.indexOf(filterValues['features'][i]) === -1) {
-        return false;
-      }
-    }
-    return true;
+    return pin.offer.guests === +document.querySelector('#housing-guests');
   }
 
   window.filtering = {
-    filterPins: function (loadedData) {
-      return loadedData.filter(filterType).filter(priceValueToPriceRange[filterValues['housing-price']])
-        .filter(filterRoom).filter(filterGuest).filter(filterFeatures);
-    },
-
+    // обработчик изменения поля select, в котором ведется работа с списком filtersToApply в зависимости от value поля ('any' или не 'any'):
     filterSelectChangeHandler: window.utils.debounce(function (evt, loadedPins) {
-      filterValues[evt.target.id] = evt.target.value;
+
+      if (evt.target.value !== 'any') {
+        filtersToApply.push(fieldsToFunctions[evt.target.id]);
+      } else {
+        filtersToApply.splice(filtersToApply.indexOf(fieldsToFunctions[evt.target.id]), 1);
+      }
+
       window.pin.update(loadedPins);
     }),
 
-    filterFeatureChangeHandler: window.utils.debounce(function (evt, loadedPins) {
-      if (evt.target.checked) {
-        filterValues['features'].push(evt.target.value);
-      } else {
-        filterValues['features'].splice(filterValues['features'].indexOf(evt.target.value), 1);
-      }
-      window.pin.update(loadedPins);
-    })
+    // и вот тут я застряла, тк не понимаю как вызвать только те фильтры, которые в списке функций filtersToApply  вот в этой функции:
+    filterPins: function (loadedData) {
+      return loadedData.filter(function (pin) {
+        return filterType(pin) && filterRoom(pin) && filterGuest(pin);
+      });
+    }
   };
 })();
