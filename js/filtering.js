@@ -14,15 +14,15 @@
   // непосредственно фильтры по типу, гостям и комнатам:
 
   function filterType(pin) {
-    return pin.offer.type === document.querySelector('#housing-type');
+    return pin.offer.type === document.querySelector('#housing-type').value;
   }
 
   function filterRoom(pin) {
-    return pin.offer.rooms === +document.querySelector('#housing-rooms');
+    return pin.offer.rooms === +document.querySelector('#housing-rooms').value;
   }
 
   function filterGuest(pin) {
-    return pin.offer.guests === +document.querySelector('#housing-guests');
+    return pin.offer.guests === +document.querySelector('#housing-guests').value;
   }
 
   window.filtering = {
